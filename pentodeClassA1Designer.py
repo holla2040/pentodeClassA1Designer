@@ -148,9 +148,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.biasCurrent = QSlider(Qt.Horizontal)
         self.biasCurrent.setFixedHeight(20)
-        self.biasCurrent.setMaximum(100)
+        self.biasCurrent.setMaximum(1000)
         self.biasCurrent.setMinimum(0)
-        self.biasCurrent.setValue(48)
+        self.biasCurrent.setValue(480)
         self.biasCurrentChanged()
         self.biasCurrent.valueChanged.connect(self.biasCurrentChanged)
         screenLayout.addWidget(self.biasCurrent)
@@ -255,12 +255,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.updateResults()
 
     def biasCurrentLabelChanged(self):
-        self.biasCurrent.setValue(int(self.biasCurrentLabel.text()))
+        self.biasCurrent.setValue(int(10*float(self.biasCurrentLabel.text())))
         self.updateLoadLine()
         self.updateResults()
 
     def biasCurrentChanged(self):
-        self.biasCurrentLabel.setText("%d"%(self.biasCurrent.value()))
+        self.biasCurrentLabel.setText("%0.1f"%(self.biasCurrent.value()/10))
         self.updateLoadLine()
         self.updateResults()
 
@@ -281,8 +281,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.screenVoltage.setValue(int(self.tubes[name]['screenVoltage']))
         self.screenVoltageLabel.setText("%d"%self.screenVoltage.value())
 
-        self.biasCurrent.setValue(int(float(self.tubes[name]['biasCurrent'])))
-        self.biasCurrentLabel.setText("%d"%(self.biasCurrent.value()))
+        self.biasCurrent.setValue(int(10*float(self.tubes[name]['biasCurrent'])))
+        self.biasCurrentLabel.setText("%0.1f"%(float(self.biasCurrent.value())/10))
 
         self.loadImpedanceLabel.setText(self.tubes[name]['load'])
         self.updateLoadLine()
@@ -354,8 +354,7 @@ class MainWindow(QtWidgets.QMainWindow):
         f.write("Vs s 0 %s\n"%screenVoltage)
         f.write("Vp p 0 100\n")
         f.write("Xtube p s g 0 %s\n\n"%pentode)
-
-        f.write(".dc Vp 0 %s 5 Vg 0 %s -1\n"%("%d"%(2*int(supplyVoltage)),gridVoltageRange))
+        f.write(".dc Vp 0 %s 5 Vg 0 %s -1\n"%("%d"%(2*int(supplyVoltage)+150),gridVoltageRange))
         f.write(".save v(g) v(g) v(s) v(p) i(Vs) i(Vp)\n")
         f.write(".end\n")
         f.close() 
