@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python3
 
 # https://www.pythonguis.com/tutorials/plotting-matplotlib/
 
@@ -89,6 +89,10 @@ class MainWindow(QtWidgets.QMainWindow):
         l.setFixedHeight(20)
         labels.addWidget(l)
 
+        l = QLabel("")
+        l.setFixedHeight(20)
+        labels.addWidget(l)
+
         toolbar.addLayout(labels,0)
 
         values = QVBoxLayout()
@@ -111,10 +115,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.loadImpedanceLabel.setFixedWidth(50)
         self.loadImpedanceLabel.returnPressed.connect(self.updateLoadLine)
 
+        spacer = QLabel("Results")
+        spacer.setFixedHeight(20)
+
         values.addWidget(self.supplyVoltageLabel)
         values.addWidget(self.screenVoltageLabel)
         values.addWidget(self.biasCurrentLabel)
         values.addWidget(self.loadImpedanceLabel)
+        values.addWidget(spacer)
         toolbar.addLayout(values,0)
 
         screenLayout = QVBoxLayout()
@@ -147,8 +155,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.biasCurrent.valueChanged.connect(self.biasCurrentChanged)
         screenLayout.addWidget(self.biasCurrent)
 
+        self.loadImpedance = QSlider(Qt.Horizontal)
+        self.loadImpedance.setFixedHeight(20)
+        self.loadImpedance.setMaximum(500000)
+        self.loadImpedance.setMinimum(10)
+        self.loadImpedance.setValue(4200)
+        self.loadImpedanceChanged()
+        self.loadImpedance.valueChanged.connect(self.loadImpedanceChanged)
+        screenLayout.addWidget(self.loadImpedance)
+
         self.measureResult = QLabel()
-        self.measureResult.setFixedHeight(30)
         screenLayout.addWidget(self.measureResult)
 
         self.updateLoadLine()
@@ -185,7 +201,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # print('deltaV:%0.1fV\ndeltaI:%0.4fA'%(dv,di))
         #print('power :%0.1fW'%((dv*di)/8))
 
-        s = '\u0394V %0.1f-%0.1f=%0.1fV  \u0394A %d-%d=%0.1fmA\n%0.1fW'%(self.voltage2,self.voltage1,dv,self.current1*1000,self.current2*1000,di*1000,(dv*di)/8)
+        s = '\u0394V %0.1f-%0.1f=%0.1fV  \u0394A %d-%d=%0.1fmA  %0.1fW'%(self.voltage2,self.voltage1,dv,self.current1*1000,self.current2*1000,di*1000,(dv*di)/8)
         self.measureResult.setText(s)
 
 
@@ -247,6 +263,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.biasCurrentLabel.setText("%d"%(self.biasCurrent.value()))
         self.updateLoadLine()
         self.updateResults()
+
+    def loadImpedanceChanged(self):
+        self.loadImpedanceLabel.setText("%d"%(self.loadImpedance.value()))
+        self.updateLoadLine()
 
     def tubeChanged(self):
         name = self.partnumber.currentText()
