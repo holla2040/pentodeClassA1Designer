@@ -73,15 +73,15 @@ class MainWindow(QtWidgets.QMainWindow):
         toolbar.addLayout(l1,0)
 
         labels = QVBoxLayout()
-        l = QLabel("Supply Voltage")
+        l = QLabel("Vplate")
         l.setFixedHeight(20)
         labels.addWidget(l)
 
-        l = QLabel("Screen Voltage")
+        l = QLabel("Iplate@Vplate")
         l.setFixedHeight(20)
         labels.addWidget(l)
 
-        l = QLabel("Bias Current")
+        l = QLabel("Vscreen")
         l.setFixedHeight(20)
         labels.addWidget(l)
 
@@ -101,15 +101,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.supplyVoltageLabel.setFixedHeight(20)
         self.supplyVoltageLabel.returnPressed.connect(self.supplyVoltageLabelChanged)
 
-        self.screenVoltageLabel = QLineEdit("200")
-        self.screenVoltageLabel.setFixedWidth(50)
-        self.screenVoltageLabel.setFixedHeight(20)
-        self.screenVoltageLabel.returnPressed.connect(self.screenVoltageLabelChanged)
-
         self.biasCurrentLabel = QLineEdit("0.01")
         self.biasCurrentLabel.setFixedWidth(50)
         self.biasCurrentLabel.setFixedHeight(20)
         self.biasCurrentLabel.returnPressed.connect(self.biasCurrentLabelChanged)
+
+        self.screenVoltageLabel = QLineEdit("200")
+        self.screenVoltageLabel.setFixedWidth(50)
+        self.screenVoltageLabel.setFixedHeight(20)
+        self.screenVoltageLabel.returnPressed.connect(self.screenVoltageLabelChanged)
 
         self.loadImpedanceLabel = QLineEdit("4500")
         self.loadImpedanceLabel.setFixedWidth(50)
@@ -119,8 +119,8 @@ class MainWindow(QtWidgets.QMainWindow):
         spacer.setFixedHeight(20)
 
         values.addWidget(self.supplyVoltageLabel)
-        values.addWidget(self.screenVoltageLabel)
         values.addWidget(self.biasCurrentLabel)
+        values.addWidget(self.screenVoltageLabel)
         values.addWidget(self.loadImpedanceLabel)
         values.addWidget(spacer)
         toolbar.addLayout(values,0)
@@ -144,7 +144,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.screenVoltage.setValue(200)
         self.screenVoltageChanged()
         self.screenVoltage.valueChanged.connect(self.screenVoltageChanged)
-        screenLayout.addWidget(self.screenVoltage)
 
         self.biasCurrent = QSlider(Qt.Horizontal)
         self.biasCurrent.setFixedHeight(20)
@@ -153,7 +152,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.biasCurrent.setValue(480)
         self.biasCurrentChanged()
         self.biasCurrent.valueChanged.connect(self.biasCurrentChanged)
+
         screenLayout.addWidget(self.biasCurrent)
+        screenLayout.addWidget(self.screenVoltage)
 
         self.loadImpedance = QSlider(Qt.Horizontal)
         self.loadImpedance.setFixedHeight(20)
