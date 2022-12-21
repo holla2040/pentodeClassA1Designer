@@ -1,4 +1,5 @@
 name,plateDissipation,plateVoltage,screenVoltage,biasCurrent,load
+12BY7A,6.5,250,180,26,100000
 6AK6,2.75,180,180,15,10000
 6CL6,7.5,250,150,30,7500
 6AU6,3.5,250,125,7.6,220000
