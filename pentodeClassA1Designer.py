@@ -77,9 +77,9 @@ class MainWindow(QtWidgets.QMainWindow):
         l.setFixedHeight(20)
         labels.addWidget(l)
 
-        l = QLabel("Iplate@Vplate")
-        l.setFixedHeight(20)
-        labels.addWidget(l)
+        self.lbiasi = QLabel("Iplate@Vplate")
+        self.lbiasi.setFixedHeight(20)
+        labels.addWidget(self.lbiasi)
 
         l = QLabel("Vscreen")
         l.setFixedHeight(20)
@@ -89,9 +89,18 @@ class MainWindow(QtWidgets.QMainWindow):
         l.setFixedHeight(20)
         labels.addWidget(l)
 
-        l = QLabel("")
+        '''
+        l = QLabel("hi")
         l.setFixedHeight(20)
         labels.addWidget(l)
+        '''
+        l4 = QHBoxLayout()
+        l4.addWidget(QLabel("Inductive"))
+        self.inductive = QCheckBox()
+        self.inductive.setChecked(True)
+        self.inductive.toggled.connect(self.inductiveChanged)
+        l4.addWidget(self.inductive)
+        labels.addLayout(l4)
 
         toolbar.addLayout(labels,0)
 
@@ -249,6 +258,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.screenVoltage.setValue(int(self.screenVoltageLabel.text()))
         self.updateResults()
 
+    def inductiveChanged(self):
+        if self.inductive.isChecked() == True:
+            self.lbiasi.setText("Iplate@Vplate")
+        else:
+            self.lbiasi.setText("Iplate")
+        self.updateLoadLine()
+
     def screenVoltageChanged(self):
         self.screenVoltageLabel.setText("%d"%self.screenVoltage.value())
         # if self.running:
@@ -301,9 +317,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def updateLoadLine(self):
         m = -1/float(self.loadImpedanceLabel.text())
-        b = float(self.supplyVoltageLabel.text())/float(self.loadImpedanceLabel.text()) + float(self.biasCurrentLabel.text())/1000
-        b2 = float(self.supplyVoltageLabel.text())/(2*float(self.loadImpedanceLabel.text())) + float(self.biasCurrentLabel.text())/1000
-        b5 = float(self.supplyVoltageLabel.text())/(0.5*float(self.loadImpedanceLabel.text())) + float(self.biasCurrentLabel.text())/1000
+        if self.inductive.isChecked() == True:
+            self.biasi = float(self.biasCurrentLabel.text())/1000
+            b = float(self.supplyVoltageLabel.text())/float(self.loadImpedanceLabel.text()) + self.biasi
+            b2 = float(self.supplyVoltageLabel.text())/(2*float(self.loadImpedanceLabel.text())) + self.biasi
+            b5 = float(self.supplyVoltageLabel.text())/(0.5*float(self.loadImpedanceLabel.text())) + self.biasi
+        else:
+            self.biasv = float(self.loadImpedanceLabel.text()) * float(self.biasCurrentLabel.text())/1000
+            b = float(self.supplyVoltageLabel.text())/float(self.loadImpedanceLabel.text())
+            b2 = float(self.supplyVoltageLabel.text())/(2*float(self.loadImpedanceLabel.text())) + self.biasi
+            b5 = float(self.supplyVoltageLabel.text())/(0.5*float(self.loadImpedanceLabel.text())) + self.biasi
 
         self.loadlineVoltages = np.arange(0,500,5)
         self.loadlineCurrents = m*self.loadlineVoltages + b
