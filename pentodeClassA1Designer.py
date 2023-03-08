@@ -316,22 +316,32 @@ class MainWindow(QtWidgets.QMainWindow):
             self.update_plot()
 
     def updateLoadLine(self):
+        self.loadlineVoltages = np.arange(0,500,5)
+        self.biasi = float(self.biasCurrentLabel.text())/1000
+        load = float(self.loadImpedanceLabel.text())
+        vb = float(self.supplyVoltageLabel.text())
+
         m = -1/float(self.loadImpedanceLabel.text())
         if self.inductive.isChecked() == True:
-            self.biasi = float(self.biasCurrentLabel.text())/1000
-            b = float(self.supplyVoltageLabel.text())/float(self.loadImpedanceLabel.text()) + self.biasi
-            b2 = float(self.supplyVoltageLabel.text())/(2*float(self.loadImpedanceLabel.text())) + self.biasi
-            b5 = float(self.supplyVoltageLabel.text())/(0.5*float(self.loadImpedanceLabel.text())) + self.biasi
-        else:
-            self.biasv = float(self.loadImpedanceLabel.text()) * float(self.biasCurrentLabel.text())/1000
-            b = float(self.supplyVoltageLabel.text())/float(self.loadImpedanceLabel.text())
-            b2 = float(self.supplyVoltageLabel.text())/(2*float(self.loadImpedanceLabel.text())) + self.biasi
-            b5 = float(self.supplyVoltageLabel.text())/(0.5*float(self.loadImpedanceLabel.text())) + self.biasi
+            self.biasv = vb
+            b = vb/load + self.biasi
+            b2 = vb/(2*load) + self.biasi
+            b5 = vb/(0.5*load) + self.biasi
 
-        self.loadlineVoltages = np.arange(0,500,5)
-        self.loadlineCurrents = m*self.loadlineVoltages + b
-        self.loadlineCurrents2 = 2*m*self.loadlineVoltages + b5
-        self.loadlineCurrents5 = 0.5*m*self.loadlineVoltages + b2
+            self.loadlineCurrents = m*self.loadlineVoltages + b
+            self.loadlineCurrents2 = 2*m*self.loadlineVoltages + b5
+            self.loadlineCurrents5 = 0.5*m*self.loadlineVoltages + b2
+
+        else:
+            self.biasv = vb - self.biasi * load
+            b = vb/load
+            b2 = vb/(2*load)
+            b5 = vb/(0.5*load)
+
+            self.loadlineCurrents = m*self.loadlineVoltages + b
+            self.loadlineCurrents2 = 2*m*self.loadlineVoltages + b5 + self.biasi
+            self.loadlineCurrents5 = 0.5*m*self.loadlineVoltages + b2 + self.biasi
+
         if self.running:
             self.update_plot()
 
@@ -361,7 +371,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.axes.plot(self.loadlineVoltages,self.loadlineCurrents2, 'm',linewidth=0.5)
         self.canvas.axes.plot(self.loadlineVoltages,self.loadlineCurrents5, 'c',linewidth=0.5)
 
-        self.canvas.axes.plot(float(self.supplyVoltageLabel.text()),float(self.biasCurrentLabel.text())/1000, 'bo', markersize=4)
+        self.canvas.axes.plot(self.biasv,self.biasi, 'bo', markersize=4)
 
         self.canvas.draw()
         self.ylim = (0,self.canvas.axes.get_ylim()[1])
