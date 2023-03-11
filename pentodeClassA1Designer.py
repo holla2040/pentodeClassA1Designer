@@ -37,8 +37,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.mpl_connect('button_press_event', self.measureBegin)
         self.canvas.mpl_connect('button_release_event', self.measureEnd)
 
-
-
         layout = QVBoxLayout()
 
         toolbar = QHBoxLayout()
@@ -106,22 +104,22 @@ class MainWindow(QtWidgets.QMainWindow):
 
         values = QVBoxLayout()
         self.supplyVoltageLabel = QLineEdit("250")
-        self.supplyVoltageLabel.setFixedWidth(50)
+        self.supplyVoltageLabel.setFixedWidth(60)
         self.supplyVoltageLabel.setFixedHeight(20)
         self.supplyVoltageLabel.returnPressed.connect(self.supplyVoltageLabelChanged)
 
         self.biasCurrentLabel = QLineEdit("0.01")
-        self.biasCurrentLabel.setFixedWidth(50)
+        self.biasCurrentLabel.setFixedWidth(60)
         self.biasCurrentLabel.setFixedHeight(20)
         self.biasCurrentLabel.returnPressed.connect(self.biasCurrentLabelChanged)
 
-        self.screenVoltageLabel = QLineEdit("200")
-        self.screenVoltageLabel.setFixedWidth(50)
+        self.screenVoltageLabel = QLineEdit("600")
+        self.screenVoltageLabel.setFixedWidth(60)
         self.screenVoltageLabel.setFixedHeight(20)
         self.screenVoltageLabel.returnPressed.connect(self.screenVoltageLabelChanged)
 
         self.loadImpedanceLabel = QLineEdit("4500")
-        self.loadImpedanceLabel.setFixedWidth(50)
+        self.loadImpedanceLabel.setFixedWidth(60)
         self.loadImpedanceLabel.returnPressed.connect(self.updateLoadLine)
 
         spacer = QLabel("Results")
@@ -321,7 +319,7 @@ class MainWindow(QtWidgets.QMainWindow):
         load = float(self.loadImpedanceLabel.text())
         vb = float(self.supplyVoltageLabel.text())
 
-        m = -1/float(self.loadImpedanceLabel.text())
+        m = -1/load
         if self.inductive.isChecked() == True:
             self.biasv = vb
             b = vb/load + self.biasi
@@ -335,12 +333,13 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.biasv = vb - self.biasi * load
             b = vb/load
-            b2 = vb/(2*load)
-            b5 = vb/(0.5*load)
-
             self.loadlineCurrents = m*self.loadlineVoltages + b
-            self.loadlineCurrents2 = 2*m*self.loadlineVoltages + b5 + self.biasi
-            self.loadlineCurrents5 = 0.5*m*self.loadlineVoltages + b2 + self.biasi
+
+            b2 = self.biasi - 2*m*self.biasv
+            self.loadlineCurrents2 = 2*m*self.loadlineVoltages + b2 
+
+            b5 = self.biasi - 0.5*m*self.biasv
+            self.loadlineCurrents5 = 0.5*m*self.loadlineVoltages + b5
 
         if self.running:
             self.update_plot()
@@ -412,4 +411,5 @@ class MainWindow(QtWidgets.QMainWindow):
 
 app = QtWidgets.QApplication(sys.argv)
 w = MainWindow()
+w.setGeometry(750,500,2000,1500)
 app.exec_()
