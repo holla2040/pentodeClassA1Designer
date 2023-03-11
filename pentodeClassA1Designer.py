@@ -44,7 +44,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.partnumber = QComboBox()
         self.partnumber.addItems([key for key in sorted(self.tubes.keys())])
         self.partnumber.setCurrentIndex(9)
-        self.partnumber.currentIndexChanged.connect(self.tubeChanged)
         l1.addWidget(self.partnumber)
 
         l2 = QHBoxLayout()
@@ -106,21 +105,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.supplyVoltageLabel = QLineEdit("250")
         self.supplyVoltageLabel.setFixedWidth(60)
         self.supplyVoltageLabel.setFixedHeight(20)
-        self.supplyVoltageLabel.returnPressed.connect(self.supplyVoltageLabelChanged)
 
         self.biasCurrentLabel = QLineEdit("0.01")
         self.biasCurrentLabel.setFixedWidth(60)
         self.biasCurrentLabel.setFixedHeight(20)
-        self.biasCurrentLabel.returnPressed.connect(self.biasCurrentLabelChanged)
 
         self.screenVoltageLabel = QLineEdit("600")
         self.screenVoltageLabel.setFixedWidth(60)
         self.screenVoltageLabel.setFixedHeight(20)
-        self.screenVoltageLabel.returnPressed.connect(self.screenVoltageLabelChanged)
 
         self.loadImpedanceLabel = QLineEdit("4500")
         self.loadImpedanceLabel.setFixedWidth(60)
-        self.loadImpedanceLabel.returnPressed.connect(self.updateLoadLine)
 
         spacer = QLabel("Results")
         spacer.setFixedHeight(20)
@@ -140,7 +135,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.supplyVoltage.setMinimum(10)
         self.supplyVoltage.setValue(300)
         self.supplyVoltageChanged()
-        self.supplyVoltage.valueChanged.connect(self.supplyVoltageChanged)
         screenLayout.addWidget(self.supplyVoltage)
         self.updateLoadLine()
 
@@ -150,7 +144,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.screenVoltage.setMinimum(10)
         self.screenVoltage.setValue(200)
         self.screenVoltageChanged()
-        self.screenVoltage.valueChanged.connect(self.screenVoltageChanged)
 
         self.biasCurrent = QSlider(Qt.Horizontal)
         self.biasCurrent.setFixedHeight(20)
@@ -158,7 +151,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.biasCurrent.setMinimum(0)
         self.biasCurrent.setValue(480)
         self.biasCurrentChanged()
-        self.biasCurrent.valueChanged.connect(self.biasCurrentChanged)
 
         screenLayout.addWidget(self.biasCurrent)
         screenLayout.addWidget(self.screenVoltage)
@@ -169,7 +161,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.loadImpedance.setMinimum(10)
         self.loadImpedance.setValue(4200)
         self.loadImpedanceChanged()
-        self.loadImpedance.valueChanged.connect(self.loadImpedanceChanged)
         screenLayout.addWidget(self.loadImpedance)
 
         self.measureResult = QLabel()
@@ -193,6 +184,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.running = True
         self.show()
         self.setFocus()
+
+        self.partnumber.currentIndexChanged.connect(self.tubeChanged)
+        self.supplyVoltageLabel.returnPressed.connect(self.supplyVoltageLabelChanged)
+        self.biasCurrentLabel.returnPressed.connect(self.biasCurrentLabelChanged)
+        self.screenVoltageLabel.returnPressed.connect(self.screenVoltageLabelChanged)
+        self.loadImpedanceLabel.returnPressed.connect(self.updateLoadLine)
+        self.supplyVoltage.valueChanged.connect(self.supplyVoltageChanged)
+        self.screenVoltage.valueChanged.connect(self.screenVoltageChanged)
+        self.biasCurrent.valueChanged.connect(self.biasCurrentChanged)
+        self.loadImpedance.valueChanged.connect(self.loadImpedanceChanged)
 
     def measureBegin(self,event):
         #print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' % ('double' if event.dblclick else 'single', event.button, event.x, event.y, event.xdata, event.ydata))
@@ -272,12 +273,12 @@ class MainWindow(QtWidgets.QMainWindow):
     def biasCurrentLabelChanged(self):
         self.biasCurrent.setValue(int(10*float(self.biasCurrentLabel.text())))
         self.updateLoadLine()
-        self.updateResults()
+        # self.updateResults()
 
     def biasCurrentChanged(self):
         self.biasCurrentLabel.setText("%0.1f"%(self.biasCurrent.value()/10))
         self.updateLoadLine()
-        self.updateResults()
+        # self.updateResults()
 
     def loadImpedanceChanged(self):
         self.loadImpedanceLabel.setText("%d"%(self.loadImpedance.value()))
@@ -376,6 +377,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ylim = (0,self.canvas.axes.get_ylim()[1])
 
     def simulate(self):
+        # print("simulate")
         subprocess.run(["/usr/bin/ngspice","-b","-r","plateChar.raw","-o","plateChar.out","plateChar.cir"],stdout=subprocess.DEVNULL)
         return rawread("plateChar.raw")
 
