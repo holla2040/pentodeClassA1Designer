@@ -43,7 +43,7 @@ class MainWindow(QtWidgets.QMainWindow):
         l1 = QVBoxLayout()
         self.partnumber = QComboBox()
         self.partnumber.addItems([key for key in sorted(self.tubes.keys())])
-        self.partnumber.setCurrentIndex(9)
+        self.partnumber.setCurrentIndex(12)
         l1.addWidget(self.partnumber)
 
         l2 = QHBoxLayout()
