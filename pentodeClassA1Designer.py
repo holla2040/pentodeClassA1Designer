@@ -16,6 +16,7 @@ from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+
 class MplCanvas(FigureCanvas):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height),tight_layout=True,linewidth=0.1)
@@ -28,6 +29,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.running = False
         self.ylim = []
         self.setWindowTitle("Pentode Designer")
+        self.xmax = 500
 
         f = open('tubes.csv','r')
         rows = csv.DictReader(f)
@@ -195,6 +197,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.biasCurrent.valueChanged.connect(self.biasCurrentChanged)
         self.loadImpedance.valueChanged.connect(self.loadImpedanceChanged)
 
+    def roundUp100(self,n):
+        return (n + 99) // 100 * 100 
+
     def measureBegin(self,event):
         #print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' % ('double' if event.dblclick else 'single', event.button, event.x, event.y, event.xdata, event.ydata))
         self.voltage1 = event.xdata
@@ -251,6 +256,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def supplyVoltageChanged(self):
         self.supplyVoltageLabel.setText("%d"%self.supplyVoltage.value())
+        self.xmax = self.roundUp100(2*int(self.supplyVoltage.value()))
+        self.updatePlateDissipation()
         self.updateLoadLine()
 
     def screenVoltageLabelChanged(self):
@@ -288,7 +295,7 @@ class MainWindow(QtWidgets.QMainWindow):
         name = self.partnumber.currentText()
 
         self.plateDissipationLabel.setText(self.tubes[name]['plateDissipation'])
-        self.plateVoltagesMax = np.arange(30,500,5)
+        self.plateVoltagesMax = np.arange(30,self.xmax,5)
         self.plateCurrentsMax = float(self.plateDissipationLabel.text())/self.plateVoltagesMax
 
         self.supplyVoltage.setValue(int(self.tubes[name]['plateVoltage']))
@@ -309,13 +316,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.updateResults()
 
     def updatePlateDissipation(self):
-        self.plateVoltagesMax = np.arange(30,500,5)
+        self.plateVoltagesMax = np.arange(30,self.xmax,5)
         self.plateCurrentsMax = float(self.plateDissipationLabel.text())/self.plateVoltagesMax
         if self.running:
             self.update_plot()
 
     def updateLoadLine(self):
-        self.loadlineVoltages = np.arange(0,500,5)
+        self.loadlineVoltages = np.arange(0,self.xmax,5)
         self.biasi = float(self.biasCurrentLabel.text())/1000
         load = float(self.loadImpedanceLabel.text())
         vb = float(self.supplyVoltageLabel.text())
@@ -350,7 +357,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.axes.cla()  # Clear the canvas.
         self.canvas.axes.grid(linestyle='--',linewidth=0.5,which='both')
         self.canvas.axes.minorticks_on()
-        self.canvas.axes.set_xlim([0,500])
+        self.canvas.axes.set_xlim([0,self.xmax])
 
         for axis in ['top','bottom','left','right']:
             self.canvas.axes.spines[axis].set_linewidth(0.5)
@@ -366,7 +373,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.canvas.axes.set_ylim(self.ylim)
 
         self.canvas.axes.autoscale(False)
-        self.canvas.axes.plot(self.plateVoltagesMax,self.plateCurrentsMax, 'r',linewidth=1.0)
+        self.canvas.axes.plot(self.plateVoltagesMax,self.plateCurrentsMax, 'r',linewidth=2.0)
         self.canvas.axes.plot(self.loadlineVoltages,self.loadlineCurrents, 'g',linewidth=1.0)
         self.canvas.axes.plot(self.loadlineVoltages,self.loadlineCurrents2, 'm',linewidth=0.5)
         self.canvas.axes.plot(self.loadlineVoltages,self.loadlineCurrents5, 'c',linewidth=0.5)
