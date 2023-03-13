@@ -30,6 +30,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ylim = []
         self.setWindowTitle("Pentode Designer")
         self.xmax = 500
+        self.xmaxlast = 500
 
         f = open('tubes.csv','r')
         rows = csv.DictReader(f)
@@ -183,9 +184,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.tubeChanged()
         self.updateResults()
-        self.running = True
-        self.show()
-        self.setFocus()
 
         self.partnumber.currentIndexChanged.connect(self.tubeChanged)
         self.supplyVoltageLabel.returnPressed.connect(self.supplyVoltageLabelChanged)
@@ -196,6 +194,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.screenVoltage.valueChanged.connect(self.screenVoltageChanged)
         self.biasCurrent.valueChanged.connect(self.biasCurrentChanged)
         self.loadImpedance.valueChanged.connect(self.loadImpedanceChanged)
+
+        self.running = True
+        self.show()
+        self.setFocus()
 
     def roundUp100(self,n):
         return (n + 99) // 100 * 100 
@@ -259,6 +261,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.xmax = self.roundUp100(2*int(self.supplyVoltage.value()))
         self.updatePlateDissipation()
         self.updateLoadLine()
+        if self.running & (self.xmaxlast != self.xmax):
+            self.updateResults()
+            self.xmaxlast = self.xmax
 
     def screenVoltageLabelChanged(self):
         self.screenVoltage.setValue(int(self.screenVoltageLabel.text()))
